@@ -29,26 +29,41 @@ with open('records.csv','r') as file:
         if counter > 50:
             break 
 
-#Calculate the GPA band in one tutorial group
+#Calculate the GPA band in one tutorial group and arrange gpa in ascending order
 gpas = [student['gpa'] for student in students]
 min_gpa = min(gpas)
 max_gpa = max(gpas)
 band_width = (max_gpa - min_gpa) / 5
-print(band_width)
-
-
-
-#Arranging gpa in ascending order
-gpa_ls = []
-for student in students:
-    gpa = student['gpa']
-    gpa_ls.append(gpa)
-
-    
-gpa_ls.sort()
-
-print(gpa_ls)
+students.sort(key=lambda x:x['gpa'])
+band1 = []
+band2 = []
+band3 = []
+band4 = []
+band5 = []
+for i in range(0,50):
+    if i<10:
+        band1.append(students[i])
+    if i>10 and i<20:
+        band2.append(students[i])
+    if i>20 and i<30:
+        band3.append(students[i])
+    if i>30 and i<40:
+        band4.append(students[i])
+    if i>40 and i<50:
+        band5.append(students[i])
+print(band1)
+print(band2)
 exit()
+
+
+gpa_ls.sort()
+print(gpa_ls)
+
+
+# sorted__by_value = sorted(students.items(), key=lambda, item: item[1])
+# sorted_gpa_by_value = dict(sorted_students_by_value)
+# print(sorted__by_value)
+# # Output: {'orange': 1, 'banana': 2, 'apple': 3}
 
 
 '''
