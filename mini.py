@@ -16,11 +16,11 @@ with open('records.csv','r') as file:
         else:
             # Create student dictionary
             student = {
-                'id': lst[0],
-                'name': lst[1],
-                'gender': lst[2],
-                'school': lst[3],
-                'major': lst[4],
+                'tutorial group': lst[0],
+                'id': lst[1],
+                'school': lst[2],
+                'name': lst[3],
+                'gender': lst[4],
                 'gpa': float(lst[5])
             }
             students.append(student)
@@ -30,11 +30,17 @@ with open('records.csv','r') as file:
             break 
 
 #Calculate the GPA band in one tutorial group and arrange gpa in ascending order
+#
 gpas = [student['gpa'] for student in students]
 min_gpa = min(gpas)
 max_gpa = max(gpas)
 band_width = (max_gpa - min_gpa) / 5
 students.sort(key=lambda x:x['gpa'])
+
+#Split the students grade into 5 bands. Initialising each band to be a list of students in a band. Save the sorted dictionary of students in a
+#different band based on the different gpa
+
+''' Thinking process:
 band1 = []
 band2 = []
 band3 = []
@@ -51,13 +57,38 @@ for i in range(0,50):
         band4.append(students[i])
     if i>40 and i<50:
         band5.append(students[i])
-print(band1)
-print(band2)
-exit()
+'''
 
 
-gpa_ls.sort()
-print(gpa_ls)
+#Simplification:
+
+students_sorted = sorted(students, key=lambda x: x["gpa"], reverse=True)
+bands = [students_sorted[i:i+10]for i in range(0, 50, 10)]
+band1, band2, band3, band4, band5 = bands
+
+#Within each band, we should select one student from each band randomly. (We avoid choosing in order to prevent putting the underperforming student together with the 
+#student that is not as outstanding in band 4)
+
+for band in bands:
+    random.shuffle(band)
+
+num_groups = 10
+#Creating a list 10 times
+group = [[] for _ in range(num_groups)]
+
+
+for band in bands:
+    for i in range(num_groups):
+        if band:  # Check if band still has students
+            group[i].append(band.pop()) #The group should add students into the group, and remove the student from the band list.
+
+
+# Print results with CORRECT field mapping
+for i, g in enumerate(group, 1):
+    print(f"Group {i}:")
+    for student in g:
+        print(f"  - Name: {student['name']}, ID: {student['id']}, Gender: {student['gender']}, School: {student['school']}, GPA: {student['gpa']}")
+    print()
 
 
 # sorted__by_value = sorted(students.items(), key=lambda, item: item[1])
