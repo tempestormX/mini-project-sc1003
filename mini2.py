@@ -25,6 +25,10 @@ with open('records.csv','r') as file:
         if counter > 50:
             break 
 
+for i, student in enumerate(students):  # Show first 3 students
+    print(f"Student {i+1}: {student}")
+exit()
+
 # Count total males and females
 male = 0 
 female = 0 
@@ -78,50 +82,62 @@ male_count = [0] * num_groups
 female_count = [0] * num_groups
 
 # Distribute students with gender optimization - one from each band
+# Looking at each group one by one and analysing through each band, 
+# 
 for group_idx in range(num_groups):
     for band_idx in range(len(bands)):
-        current_male_ratio = male_count[group_idx] / target_males_per_group if target_males_per_group > 0 else 0
-        current_female_ratio = female_count[group_idx] / target_females_per_group if target_females_per_group > 0 else 0
+         # Calculate how "full" the group is for boys and girls
+        current_male_ratio = male_count[group_idx] / target_males_per_group
+        current_female_ratio = female_count[group_idx] / target_females_per_group
         
+        # Decision time: who to add next?
         if current_male_ratio < current_female_ratio and band_males[band_idx]:
-            student = band_males[band_idx].pop(0)
-            groups[group_idx].append(student)
-            male_count[group_idx] += 1
+            # If group needs more boys AND there are boys available in this band
+            student = band_males[band_idx].pop(0)    # Take first boy from band
+            groups[group_idx].append(student)        # Add to group
+            male_count[group_idx] += 1               # Update boy counter
+            
         elif band_females[band_idx]:
-            student = band_females[band_idx].pop(0)
-            groups[group_idx].append(student)
-            female_count[group_idx] += 1
+            # If girls are available in this band
+            student = band_females[band_idx].pop(0)  # Take first girl from band
+            groups[group_idx].append(student)        # Add to group
+            female_count[group_idx] += 1             # Update girl counter
+            
         elif band_males[band_idx]:
-            student = band_males[band_idx].pop(0)
-            groups[group_idx].append(student)
-            male_count[group_idx] += 1
+            # If boys are available in this band
+            student = band_males[band_idx].pop(0)    # Take first boy from band
+            groups[group_idx].append(student)        # Add to group
+            male_count[group_idx] += 1               # Update boy counter
 
-# Print group allocations with details
-for i, g in enumerate(groups, 1):
-    males_in_group = 0
+for i, g in enumerate(groups, 1):        # Look at each finished group
+    males_in_group = 0                   # Reset counters for this group
     females_in_group = 0
     total_gpa = 0
+
+    print(f"Group {i}:")                 # Print group header
     
-    print(f"Group {i}:")
-    
-    # Sort by GPA band for display (Band 1 = highest GPA, Band 5 = lowest GPA)
-    for student in g:
-        # Determine which band the student came from
+    for student in g:                    # Look at each student in the group
+        # Figure out which GPA band this student came from
         band_number = None
         for band_idx, band in enumerate(bands):
-            original_band_students = students_sorted[band_idx*10:(band_idx+1)*10]
-            if student in original_band_students:
+            if student in band:          # Check if student is in this band
                 band_number = band_idx + 1
+                print (band_number)
+                exit()
                 break
         
-        gender_lower = student['gender'].lower()
-        if gender_lower in ['m','male']:
+        # Count boys and girls
+        if student['gender'].lower() in ['m','male']:
             males_in_group += 1
-        elif gender_lower in ['f', 'female']:
+        else:
             females_in_group += 1
-        total_gpa += student['gpa']
+            
+        total_gpa += student['gpa']      # Add to GPA total
+        
+        # Print student details
         print(f"  {student['name']} | {student['school']} | {student['gender']} | GPA: {student['gpa']:.2f} | Band: {band_number}")
     
+    # Calculate and print group summary
     avg_gpa = total_gpa / len(g)
     print(f"  Summary: {males_in_group} males, {females_in_group} females, Average GPA: {avg_gpa:.2f}")
     print()
