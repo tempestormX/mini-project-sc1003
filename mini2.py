@@ -172,6 +172,58 @@ def print_groups(groups, students_sorted, bands, batch_number=1):
         print()
 
 
+
+def save_groups_to_csv(all_groups_data, output_file="student_groups.csv"):
+    """Save all groups data to a CSV file.
+    
+    Args:
+        all_groups_data: List of tuples (batch_number, groups, students_sorted, bands)
+        output_file: Name of the output CSV file
+    """
+    try:
+        with open(output_file, 'w', newline='', encoding='utf-8') as f:
+            writer = csv.writer(f)
+            
+            # Write header
+            writer.writerow([
+                'Batch', 'Group', 'Student_Name', 'Student_ID', 'School', 
+                'Gender', 'GPA', 'Band', 'Tutorial_Group'
+            ])
+            
+            # Precompute band assignments for each batch and write data
+            for batch_number, groups, students_sorted, bands in all_groups_data:
+                # Create band lookup for this batch
+                student_to_band = {}
+                for band_idx, band in enumerate(bands):
+                    for student in band:
+                        student_key = f"{student['name']}_{student['id']}"
+                        student_to_band[student_key] = band_idx + 1
+                
+                # Write groups for this batch
+                for group_idx, group in enumerate(groups, 1):
+                    for student in group:
+                        student_key = f"{student['name']}_{student['id']}"
+                        band_number = student_to_band.get(student_key, "Unknown")
+                        
+                        writer.writerow([
+                            batch_number,
+                            f"Group {group_idx}",
+                            student['name'],
+                            student['id'],
+                            student['school'],
+                            student['gender'],
+                            f"{student['gpa']:.2f}",
+                            band_number,
+                            student['tutorial group']
+                        ])
+        
+        print(f"All groups have been saved to '{output_file}'")
+        return True
+        
+    except Exception as e:
+        print(f"Error saving to CSV file: {e}")
+        return False
+
 if __name__ == "__main__":
     BATCH_SIZE = 50
     NUM_GROUPS = 10
