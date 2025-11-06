@@ -282,3 +282,112 @@ if __name__ == "__main__":
     except Exception as e:
         print(f"An error occurred: {e}")
         sys.exit(1)
+    
+    import matplotlib.pyplot as plt
+    import csv
+
+# Read data from records.csv file
+tutorial_groups = []
+gpas = []
+
+with open('records.csv', 'r', encoding='utf-8') as file:
+    reader = csv.DictReader(file)
+    for row in reader:
+        tutorial_groups.append(row['Tutorial Group'])
+        gpas.append(float(row['CGPA']))  # Using CGPA column for GPA
+
+# Organize data by tutorial group
+group_data = {}
+for i, group in enumerate(tutorial_groups):
+    if group not in group_data:
+        group_data[group] = []
+    group_data[group].append(gpas[i])
+
+# Calculate statistics for each tutorial group
+sorted_groups = sorted(group_data.keys(), key=lambda x: int(x.split('-')[1]))
+group_means = []
+group_mins = []
+group_maxs = []
+all_student_gpas = []
+
+# Prepare data for plotting
+x_positions = []
+y_gpas = []
+group_labels = []
+
+for i, group in enumerate(sorted_groups):
+    group_gpas = group_data[group]
+    
+    # Add individual student points
+    for gpa in group_gpas:
+        x_positions.append(i)
+        y_gpas.append(gpa)
+        all_student_gpas.append(gpa)
+    
+    # Calculate group statistics
+    group_means.append(sum(group_gpas) / len(group_gpas))
+    group_mins.append(min(group_gpas))
+    group_maxs.append(max(group_gpas))
+    group_labels.append(group)
+
+# Create the visualization
+plt.figure(figsize=(20, 10))
+
+# Plot individual student GPAs as scatter points with transparency
+plt.scatter(x_positions, y_gpas, alpha=1.0, color='blue', s=30, label='Individual Students')
+
+# Plot tutorial group average GPAs as red line
+plt.plot(range(len(sorted_groups)), group_means, 'ro-', 
+         linewidth=2, markersize=6, label='Group Average GPA')
+
+# Customize the plot
+plt.xlabel('Tutorial Groups', fontsize=15)
+plt.ylabel('GPA', fontsize=15)
+plt.title('GPA Distribution Across Tutorial Groups\n(Individual Students and Group Averages)', fontsize=14)
+
+# Set x-axis labels to show every 10th tutorial group for readability
+x_ticks = list(range(0, len(sorted_groups), 10))
+x_labels = [sorted_groups[i] for i in x_ticks]
+plt.xticks(x_ticks, x_labels, rotation=45)
+
+# Set y-axis range from min_gpa-0.5 to 5
+min_gpa = min(all_student_gpas)
+plt.ylim(min_gpa - 0.5, 5.0)
+
+# Add grid and legend
+plt.grid(True, alpha=0.3)
+plt.legend()
+
+# Add horizontal line for overall average
+overall_mean = sum(all_student_gpas) / len(all_student_gpas)
+plt.axhline(y=overall_mean, color='blue', linestyle='--', 
+            linewidth=2, alpha=1.0, label=f'Overall Average: {overall_mean:.2f}')
+
+plt.legend()
+plt.tight_layout()
+plt.show()
+
+# Print statistical summary
+print("=" * 60)
+print("STATISTICAL SUMMARY")
+print("=" * 60)
+print(f"Total Students: {len(all_student_gpas)}")
+print(f"Total Tutorial Groups: {len(sorted_groups)}")
+print(f"Overall Average GPA: {overall_mean:.3f}")
+print(f"Minimum GPA: {min(all_student_gpas):.3f}")
+print(f"Maximum GPA: {max(all_student_gpas):.3f}")
+
+# Print group statistics
+print(f"\nTutorial Group GPA Statistics:")
+print(f"Average group mean GPA: {sum(group_means)/len(group_means):.3f}")
+print(f"Lowest group average: {min(group_means):.3f}")
+print(f"Highest group average: {max(group_means):.3f}")
+
+# Show some sample groups with their averages
+print(f"\nSample Group Averages:")
+for i in range(min(5, len(sorted_groups))):
+    print(f"  {sorted_groups[i]}: {group_means[i]:.3f}")
+if len(sorted_groups) > 5:
+    print("  ...")
+    for i in range(len(sorted_groups)-3, len(sorted_groups)):
+        print(f"  {sorted_groups[i]}: {group_means[i]:.3f}")
